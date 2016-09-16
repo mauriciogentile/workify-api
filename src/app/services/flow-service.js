@@ -10,8 +10,9 @@ function lookupFlow(id) {
 }
 
 function saveNew(flow, cb) {
-    validate(flow, validator);
-    flowRepository.saveNew(flow, cb);
+    validate.async(flow, validator)
+        .then(function() { flowRepository.saveNew(flow, cb); })
+        .catch(cb);
 }
 
 FlowService.prototype = {

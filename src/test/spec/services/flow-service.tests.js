@@ -5,12 +5,21 @@ var proxyquire = require('proxyquire');
 describe('FlowService Tests', function () {
 
     var flowService;
+    var validFlow = { name: "my flow", createdBy: "mauri", createdOn: new Date() };
+    var invalidFlow = { name: "error" };
 
     beforeEach(function () {
         flowService = proxyquire('../../../app/services/flow-service',
         {
-            './validators/validate.js': function () { },
-            '../repositories/mongo/flow-repository.js': { saveNew: function (a, cb) { cb(); } }
+            '../repositories/mongo/flow-repository.js': {
+                saveNew: function (a, cb) {
+                    if (a.name == "error") {
+                        cb(new Error);
+                        return;
+                    }
+                    cb(null, {});
+                }
+            }
         });
     });
 
@@ -22,15 +31,16 @@ describe('FlowService Tests', function () {
         });
 
         it('should call back with error if fails to save', function (done) {
-            flowService.saveNew({ name: "myFlow" }, function (err, data) {
+            flowService.saveNew(invalidFlow, function (err, data) {
                 expect(err).to.not.be.null;
+                expect(err).to.not.be.undefined;
                 expect(data).to.be.undefined;
                 done();
             });
         });
 
         it('should call back after save', function (done) {
-            flowService.saveNew({ name: "myFlow" }, function (err, data) {
+            flowService.saveNew(validFlow, function (err, data) {
                 expect(err).to.be.null;
                 expect(data).to.not.be.undefined;
                 done();
