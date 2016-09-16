@@ -3,25 +3,32 @@ var assert = require('chai').assert;
 var proxyquire = require('proxyquire');
 
 describe('FlowService Tests', function () {
-
     var flowService;
-    var validFlow = { name: "my flow", createdBy: "mauri", createdOn: new Date(), states: ["a", "b"] };
-    var failedFlow = { name: "failtosave", createdBy: "mauri", createdOn: new Date(), states: ["a", "b"] };
-    var invalidFlow = { name: "error" };
+    var validFlow;
+    var failedFlow;
+    var invalidFlow;
 
     beforeEach(function () {
         flowService = proxyquire('../../../app/services/flow-service',
         {
             '../repositories/mongo/flow-repository.js': {
                 saveNew: function (a, cb) {
-                    if (a.name == "failtosave") {
-                        cb(new Error("fail to save"));
+                    if (a.shouldFail) {
+                        cb(new Error("error saviing " + a.name));
                         return;
                     }
                     cb(null, {});
                 }
             }
         });
+        validFlow = {
+            name: "my flow", createdBy: "mauri", createdOn: new Date(),
+            states: [{ name: "a" }, { name: "b" }],
+            actions: [{ name: 'go', from: 'a', to: 'b' }]
+        };
+        failedFlow = Object.create(validFlow);
+        failedFlow.shouldFail = true;
+        invalidFlow = { name: "error" };
     });
 
     describe('saveNew', function () {

@@ -1,12 +1,9 @@
 var moment = require("moment");
 var validate = require("validate.js");
 
-function ValidationError(errors, options, attributes, constraints) {
+function ValidationError(errors /*, options, attributes, constraints*/) {
     this.stack = (new Error()).stack;
     this.errors = errors;
-    this.options = options;
-    this.attributes = attributes;
-    this.constraints = constraints;
 }
 
 ValidationError.prototype = Object.create(Error.prototype);

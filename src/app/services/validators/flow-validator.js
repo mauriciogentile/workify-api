@@ -21,6 +21,12 @@ var constraints = {
         length: {
             minimum: 2
         }
+    },
+    actions: {
+        presence: true,
+        length: {
+            minimum: 1
+        }
     }
 };
 
