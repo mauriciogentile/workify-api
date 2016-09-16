@@ -1,14 +1,16 @@
 var moment = require("moment");
 var validate = require("validate.js");
 
-function ValidationErrors(errors, options, attributes, constraints) {
-    Error.captureStackTrace(this, this.constructor);
+function ValidationError(errors, options, attributes, constraints) {
+    this.stack = (new Error()).stack;
     this.errors = errors;
     this.options = options;
     this.attributes = attributes;
     this.constraints = constraints;
 }
-ValidationErrors.prototype = new Error();
+
+ValidationError.prototype = Object.create(Error.prototype);
+ValidationError.prototype.constructor = ValidationError;
 
 function extend(validate) {
     validate.extend(validate.validators.datetime, {
@@ -29,7 +31,7 @@ var async = validate.async;
 
 validate.async = function (model, contrains, options) {
     options = options || {};
-    options.wrapErrors = options.wrapErrors || ValidationErrors;
+    options.wrapErrors = options.wrapErrors || ValidationError;
     return async(model, contrains, options);
 };
 
