@@ -10,7 +10,7 @@ function lookupFlow(id) {
 }
 
 function saveNew(flow, cb) {
-	validate(flow, validator);
+    validate(flow, validator);
     flowRepository.saveNew(flow, cb);
 }
 

@@ -1,12 +1,17 @@
 var expect = require('chai').expect;
 var assert = require('chai').assert;
+var proxyquire = require('proxyquire');
 
 describe('FlowService Tests', function () {
 
     var flowService;
 
     beforeEach(function () {
-        flowService = require('../../../app/services/flow-service');
+        flowService = proxyquire('../../../app/services/flow-service',
+        {
+            './validators/validate.js': function () { },
+            '../repositories/mongo/flow-repository.js': { saveNew: function (a, cb) { cb(); } }
+        });
     });
 
     describe('saveNew', function () {
@@ -16,21 +21,20 @@ describe('FlowService Tests', function () {
             done();
         });
 
-        it('should check integrity', function (done) {
-            flowService.saveNew({ name: "myFlow" }, function (err) {
-                assert(err, "should throw an error");
-                done();
-            });
-        });
-
-        it('should call cb', function (done) {
+        it('should call back with error if fails to save', function (done) {
             flowService.saveNew({ name: "myFlow" }, function (err, data) {
-                if (err) {
-                    console.dir(err);
-                }
+                expect(err).to.not.be.null;
+                expect(data).to.be.undefined;
                 done();
             });
         });
 
+        it('should call back after save', function (done) {
+            flowService.saveNew({ name: "myFlow" }, function (err, data) {
+                expect(err).to.be.null;
+                expect(data).to.not.be.undefined;
+                done();
+            });
+        });
     });
 });
